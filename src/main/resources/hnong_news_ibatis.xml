@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//ibatis.apache.org//DTD Config 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="lazyLoadingEnabled" value="false"/>
+    </settings>
+    <typeAliases>
+        <typeAlias alias="BONECP" type="com.easou.infra.common.ibatis.datasource.BoneCPDataSourceFactory"/>
+    </typeAliases>
+    <plugins>
+        <plugin interceptor="com.easou.infra.common.ibatis.plugin.QueryInterceptor"/>
+    </plugins>
+    <environments default="user_master">
+        <environment id="user_master">
+            <transactionManager type="JDBC"/>
+            <dataSource type="BONECP">
+                <property name="driver" value="${community_user_db_user_master_driver}"/>
+                <property name="url" value="${community_user_db_user_master_url4content}"/>
+                <property name="username" value="${community_user_db_user_master_username}"/>
+                <property name="password" value="${community_user_db_user_master_password}"/>
+                <property name="maxPoolSize" value="${community_user_db_user_master_maxPoolSize}"/>
+                <property name="minPoolSize" value="${community_user_db_user_master_minPoolSize}"/>
+            </dataSource>
+        </environment>
+        <environment id="user_slave_online">
+            <transactionManager type="JDBC"/>
+            <dataSource type="BONECP">
+                <property name="driver" value="${community_user_db_user_slave_online_driver}"/>
+                <property name="url" value="${community_user_db_user_slave_online_url4content}"/>
+                <property name="username" value="${community_user_db_user_slave_online_username}"/>
+                <property name="password" value="${community_user_db_user_slave_online_password}"/>
+                <property name="maxPoolSize" value="${community_user_db_user_slave_online_maxPoolSize}"/>
+                <property name="minPoolSize" value="${community_user_db_user_slave_online_minPoolSize}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="com/easou/infra/community/user/model/UserBaseMapper.xml"/>
+        <mapper resource="com/easou/infra/community/user/model/GroupMapper.xml"/>
+        <mapper resource="com/easou/infra/community/user/model/BuddyMapper.xml"/>
+    </mappers>
+</configuration>

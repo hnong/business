@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd" >
+<mapper namespace="com.easou.infra.community.user.model.Buddy">
+    <resultMap id="BuddyResult" type="com.easou.infra.community.user.model.Buddy">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="owner_uid" property="ownerUid" jdbcType="BIGINT"/>
+        <result column="buddy_uid" property="buddyUid" jdbcType="BIGINT"/>
+        <result column="buddy_name" property="buddyName" jdbcType="VARCHAR"/>
+        <result column="gid" property="gid" jdbcType="INTEGER"/>
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.easou.infra.community.user.model.Buddy">
+        insert ignore into tb_relation_buddy (owner_uid, buddy_uid, buddy_name, gid, create_date)
+        values (#{ownerUid, jdbcType=BIGINT},
+                #{buddyUid, jdbcType=BIGINT},
+                #{buddyName, jdbcType=VARCHAR},
+                #{gid, jdbcType=INTEGER},
+                now())
+    </insert>
+
+    <select id="getAllBuddiesByUid" resultMap="BuddyResult" parameterType="java.util.Map">
+        select id, owner_uid, buddy_uid, buddy_name, gid, update_date, create_date
+        from tb_relation_buddy
+        where owner_uid = #{ownerUid, jdbcType=BIGINT}
+        limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
+    </select>
+
+    <select id="getBuddiesByUidGid" resultMap="BuddyResult" parameterType="java.util.Map">
+        select id, owner_uid, buddy_uid, buddy_name, gid, update_date, create_date
+        from tb_relation_buddy
+        where owner_uid = #{ownerUid, jdbcType=BIGINT} and gid = #{gid, jdbcType=INTEGER}
+        limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
+    </select>
+
+    <select id="getFollowersByUid" resultMap="BuddyResult" parameterType="java.lang.Long">
+        select id, owner_uid, buddy_uid, buddy_name, gid, update_date, create_date
+        from tb_relation_buddy
+        where buddy_uid = #{buddyUid, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BuddyResult" parameterType="java.util.Map">
+        select id, owner_uid, buddy_uid, buddy_name, gid, update_date, create_date
+        from tb_relation_buddy
+        where owner_uid = #{ownerUid, jdbcType=BIGINT} and buddy_uid = #{buddyUid, jdbcType=BIGINT}
+    </select>
+
+    <select id="getAllBuddiesCountByUid" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        select count(*)
+        from tb_relation_buddy
+        where owner_uid = #{ownerUid, jdbcType=BIGINT}
+    </select>
+
+    <select id="getAllBuddiesCountByGid" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(*)
+        from tb_relation_buddy
+        where owner_uid = #{ownerUid, jdbcType=BIGINT} and gid = #{gid, jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.util.Map">
+        delete from tb_relation_buddy
+        where owner_uid = #{ownerUid, jdbcType=BIGINT} and buddy_uid = #{buddyUid, jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByUid" parameterType="java.lang.Integer">
+        delete from tb_relation_buddy
+        where owner_uid = #{ownerUid, jdbcType=BIGINT}
+    </delete>
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd" >
+<mapper namespace="com.easou.infra.community.user.model.Group">
+    <resultMap id="GroupResult" type="com.easou.infra.community.user.model.Group">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="owner_uid" property="ownerUid" jdbcType="BIGINT"/>
+        <result column="gid" property="gid" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="pre_defined" property="preDefined" jdbcType="BIT"/>
+        <result column="is_default" property="isDefault" jdbcType="BIT"/>
+        <!--<result column="member_count" property="memberCount" jdbcType="INTEGER"/>-->
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="GroupCountMapResult" type="java.util.HashMap">
+        <result column="gid" property="gid"  jdbcType="NVARCHAR"/>
+        <result column="member_count" property="count" jdbcType="NVARCHAR" />
+    </resultMap>
+
+    <resultMap id="GroupNameMapResult" type="java.util.HashMap">
+        <result column="gid" property="gid"  jdbcType="NVARCHAR"/>
+        <result column="name" property="name" jdbcType="NVARCHAR" />
+    </resultMap>
+
+    <!--                                           -->
+    <!-- tb_relation_group related sql statements -->
+    <!--                                           -->
+    <insert id="insert" parameterType="com.easou.infra.community.user.model.Group">
+        insert into tb_relation_group (owner_uid, gid, name, pre_defined, is_default, create_date)
+        values (#{ownerUid, jdbcType=BIGINT},
+                #{gid, jdbcType=INTEGER},
+                #{name, jdbcType=VARCHAR},
+                #{preDefined, jdbcType=BIT},
+                #{isDefault, jdbcType=BIT},
+                now())
+    </insert>
+
+    <select id="selectByPrimaryKey" resultMap="GroupResult" parameterType="java.util.Map">
+        select id, owner_uid, gid, name, pre_defined, is_default, update_date, create_date
+        from tb_relation_group
+        where owner_uid = #{ownerUid, jdbcType=BIGINT} and gid = #{gid, jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.util.Map">
+        delete from tb_relation_group  where owner_uid = #{ownerUid, jdbcType=BIGINT} and gid = #{gid, jdbcType=INTEGER}
+    </delete>
+
+    <delete id="deleteByUser" parameterType="java.util.Map">
+        delete from tb_relation_group  where owner_uid = #{ownerUid, jdbcType=BIGINT}
+    </delete>
+
+    <select id="selectGroupNamesByGids" resultMap="GroupNameMapResult" parameterType="java.util.Map">
+        select gid, name
+        from tb_relation_group
+        where owner_uid = #{ownerUid, jdbcType=BIGINT} and
+        gid in
+        <foreach collection="gids" item="item" index="index"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="selectByGroupName" resultMap="GroupResult" parameterType="java.util.Map">
+        select id, owner_uid, gid, name, pre_defined, is_default, update_date, create_date
+        from tb_relation_group
+        where owner_uid = #{ownerUid, jdbcType=BIGINT} and name = #{name, jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectAllGroups" resultMap="GroupResult" parameterType="java.lang.Long">
+        select id, owner_uid, gid, name, pre_defined, is_default, update_date, create_date
+        from tb_relation_group
+        where owner_uid = #{ownerUid, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectUserMaxGid" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        select max(gid) from tb_relation_group where owner_uid = #{ownerUid, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectGroupsCountOfUser" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        select count(*) + 4 from tb_relation_group where owner_uid = #{ownerUid, jdbcType=BIGINT}
+    </select>
+
+    <update id="updateNameByPrimaryKey" parameterType="java.util.Map">
+        update tb_relation_group set name = #{name, jdbcType=VARCHAR}
+        where owner_uid = #{ownerUid, jdbcType=BIGINT} and gid = #{gid, jdbcType=INTEGER}
+    </update>
+
+    <!--                                           -->
+    <!-- tb_relation_member related sql statements -->
+    <!--                                           -->
+    <select id="selectGroupsMembersCount" parameterType="java.lang.Long" resultMap="GroupCountMapResult">
+        select gid, count(*) as member_count
+        from tb_relation_buddy
+        where owner_uid = #{ownerUid, jdbcType=BIGINT}
+        group by gid
+    </select>
+
+</mapper>
